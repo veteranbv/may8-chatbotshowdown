@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://github.com/veteranbv/may8-chatbotshowdown/raw/main/immagptchatbotvs.jpg" alt="Screenshot of the chat vs">
+</p>
+
 # Ansible Playbook Challenge: "I'm a good gpt2" vs "I'm also a good gpt2" Showdown
 
 I challenged two LLM models, "im-a-good-gpt2-chatbot" and "im-also-a-good-gpt2-chatbot", on the [chat.lmsys.org](https://chat.lmsys.org/) platform to create an Ansible playbook for a fun homelab project. The models were provided with an example of my existing Ansible directory structure to guide their responses:
