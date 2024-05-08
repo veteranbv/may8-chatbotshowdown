@@ -3,7 +3,7 @@ im-a-good-gpt2-chatbot vs im-also-a-good-gpt2-chatbot
 
 ## Prompt
 
-Help me write an ansible playbook and accompanying files for a fun homelab project of your choice, but ensure that it's done thoroughly leveraging the structure of my current ansible directory so you can get an idea of how I want to structure new projects:
+'''Help me write an ansible playbook and accompanying files for a fun homelab project of your choice, but ensure that it's done thoroughly leveraging the structure of my current ansible directory so you can get an idea of how I want to structure new projects:
 
 tree
 .
@@ -202,7 +202,7 @@ tree
 
 116 directories, 77 files
 
-~/projects/infrastructure/ansible
+~/projects/infrastructure/ansible'''
 
 ## Model A: im-a-good-gpt2-chatbot
 
