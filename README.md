@@ -53,7 +53,9 @@ Overall, both models demonstrated strong capabilities in generating Ansible play
 
 > Help me write an ansible playbook and accompanying files for a fun homelab project of your choice, but ensure that it's done thoroughly leveraging the structure of my current ansible directory so you can get an idea of how I want to structure new projects: [tree pasted here]
 
-## Model A: im-a-good-gpt2-chatbot
+## Initial Comparisons
+
+### Model A: im-a-good-gpt2-chatbot
 
 <details>
   <summary>Click to expand Model A's response</summary>
@@ -277,7 +279,7 @@ This setup gives you a robust starting point for a media server in your homelab.
 
 </details>
 
-## Model B: im-also-a-good-gpt2-chatbot
+### Model B: im-also-a-good-gpt2-chatbot
 
 <details>
   <summary>Click to expand Model B's response</summary>
@@ -646,6 +648,762 @@ dependencies: []
   copy:
     src: "/usr/local/node_exporter-{{ node_exporter_version }}.linux-amd64/node_exporter"
     dest:
+~~~
+
+</details>
+
+## Additional Comparisons
+
+While my initial interest in running this test was to assess the exiting new gpt2 models that were in the wild, I thought it might be interesting to also run the same prompt on the other major models right now. In that effort, I've included the results of running the prompt on ChatGPT - GPT-4, Claude 3 Opus, Google AI Studio - Gemini 1.5 Pro, Llama 3, Llama 3:70B, and Mistral Large. 
+
+### Model C: ChatGPT - GPT-4
+
+<details>
+  <summary>Click to expand Model C's response</summary>
+  
+~~~
+Let's create an Ansible project for setting up a Minecraft server as a fun homelab project. This will be a thorough implementation that includes the structure, roles, and playbook files for deploying a Minecraft server on a Linux host. This project will demonstrate how to use Ansible for configuration management and deployment tasks. 
+
+### Project Structure
+
+The new project will be structured as follows, fitting into your existing Ansible directory setup:
+
+```
+playbooks/
+└── minecraft_server_setup
+    └── deploy_minecraft.yml
+
+roles/
+└── minecraft_server
+    ├── defaults
+    │   └── main.yml
+    ├── files
+    ├── handlers
+    │   └── main.yml
+    ├── meta
+    │   └── main.yml
+    ├── tasks
+    │   └── main.yml
+    ├── templates
+    └── vars
+        └── main.yml
+```
+
+### Step 1: Role Defaults
+
+**roles/minecraft_server/defaults/main.yml**
+
+```yaml
+---
+minecraft_user: minecraft
+minecraft_group: minecraft
+minecraft_version: "1.16.5"
+minecraft_server_dir: "/opt/minecraft"
+minecraft_xms: "1024M"
+minecraft_xmx: "2048M"
+```
+
+### Step 2: Handlers
+
+**roles/minecraft_server/handlers/main.yml**
+
+```yaml
+---
+- name: restart minecraft
+  systemd:
+    name: minecraft
+    state: restarted
+  become: true
+```
+
+### Step 3: Tasks
+
+**roles/minecraft_server/tasks/main.yml**
+
+```yaml
+---
+- name: Ensure group exists
+  group:
+    name: "{{ minecraft_group }}"
+    state: present
+
+- name: Ensure user exists
+  user:
+    name: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+    home: "{{ minecraft_server_dir }}"
+    createhome: no
+
+- name: Install required packages
+  apt:
+    name: openjdk-11-jre-headless
+    state: present
+  become: true
+
+- name: Create Minecraft server directory
+  file:
+    path: "{{ minecraft_server_dir }}"
+    state: directory
+    owner: "{{ minecraft_user }}"
+    group: "{{ minecraft_group }}"
+
+- name: Download Minecraft Server
+  get_url:
+    url: "https://launcher.mojang.com/v1/objects/f1a0073671057f01aa843443fef34330281333ce/server.jar"
+    dest: "{{ minecraft_server_dir }}/server.jar"
+    mode: '0755'
+  when: minecraft_version is defined
+
+- name: Create systemd service file
+  template:
+    src: minecraft.service.j2
+    dest: "/etc/systemd/system/minecraft.service"
+  notify: restart minecraft
+  become: true
+
+- name: Enable and start Minecraft service
+  systemd:
+    name: minecraft
+    enabled: yes
+    state: started
+  become: true
+```
+
+### Step 4: Templates
+
+**roles/minecraft_server/templates/minecraft.service.j2**
+
+```jinja
+[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+User={{ minecraft_user }}
+Nice=1
+KillMode=none
+SuccessExitStatus=0 1
+ProtectHome=true
+ProtectSystem=full
+PrivateDevices=true
+NoNewPrivileges=true
+ExecStart=/usr/bin/java -Xms{{ minecraft_xms }} -Xmx{{ minecraft_xmx }} -jar {{ minecraft_server_dir }}/server.jar nogui
+WorkingDirectory={{ minecraft_server_dir }}
+
+[Install]
+WantedBy=multi-user.target
+```
+
+### Step 5: Playbook
+
+**playbooks/minecraft_server_setup/deploy_minecraft.yml**
+
+```yaml
+---
+- name: Deploy Minecraft Server
+  hosts: all
+  become: true
+  roles:
+    - minecraft_server
+```
+
+### Conclusion
+
+You can execute this playbook using your existing inventory and configuration by navigating to your Ansible directory and running:
+
+```bash
+ansible-playbook playbooks/minecraft_server_setup/deploy_minecraft.yml -i inventory/production/hosts
+```
+
+This setup installs a Minecraft server using OpenJDK 11 and configures it to run as a service on your system. Adjust the memory settings and Minecraft version according to your server's capacity and the version you prefer.
+~~~
+
+</details>
+
+### Model D: Anthropic - Claude 3 Opus
+
+<details>
+  <summary>Click to expand Model D's response</summary>
+  
+~~~
+Great! Let's create an Ansible playbook for a fun homelab project - setting up a Minecraft server on a Raspberry Pi.
+
+First, let's create a new role called `minecraft_server`:
+
+```bash
+mkdir -p roles/minecraft_server/{defaults,files,handlers,meta,tasks,templates,vars}
+touch roles/minecraft_server/{defaults,vars}/main.yml
+touch roles/minecraft_server/meta/main.yml
+touch roles/minecraft_server/tasks/main.yml
+touch roles/minecraft_server/handlers/main.yml
+```
+
+Now, let's populate the role files:
+
+`roles/minecraft_server/defaults/main.yml`:
+```yaml
+---
+minecraft_version: 1.18.2
+minecraft_server_path: /opt/minecraft
+minecraft_server_port: 25565
+minecraft_max_memory: 1024M
+minecraft_min_memory: 512M
+```
+
+`roles/minecraft_server/vars/main.yml`:
+```yaml
+---
+minecraft_url: https://launcher.mojang.com/v1/objects/c8f83c5655308435b3dcf03c06d9fe8740a77469/server.jar
+```
+
+`roles/minecraft_server/tasks/main.yml`:
+```yaml
+---
+- name: Install required packages
+  apt:
+    name:
+      - openjdk-17-jre-headless
+      - screen
+    state: present
+
+- name: Create Minecraft server directory
+  file:
+    path: "{{ minecraft_server_path }}"
+    state: directory
+
+- name: Download Minecraft server
+  get_url:
+    url: "{{ minecraft_url }}"
+    dest: "{{ minecraft_server_path }}/server.jar"
+
+- name: Accept Minecraft EULA
+  copy:
+    content: "eula=true"
+    dest: "{{ minecraft_server_path }}/eula.txt"
+
+- name: Configure Minecraft server
+  template:
+    src: server.properties.j2
+    dest: "{{ minecraft_server_path }}/server.properties"
+  notify: restart minecraft
+
+- name: Create Minecraft systemd service
+  template:
+    src: minecraft.service.j2
+    dest: /etc/systemd/system/minecraft.service
+  notify: restart minecraft
+```
+
+`roles/minecraft_server/templates/server.properties.j2`:
+```
+server-port={{ minecraft_server_port }}
+max-memory={{ minecraft_max_memory }}
+min-memory={{ minecraft_min_memory }}
+```
+
+`roles/minecraft_server/templates/minecraft.service.j2`:
+```
+[Unit]
+Description=Minecraft Server
+After=network.target
+
+[Service]
+WorkingDirectory={{ minecraft_server_path }}
+ExecStart=/usr/bin/screen -DmS minecraft /usr/bin/java -Xmx{{ minecraft_max_memory }} -Xms{{ minecraft_min_memory }} -jar server.jar nogui
+
+[Install]
+WantedBy=multi-user.target
+```
+
+`roles/minecraft_server/handlers/main.yml`:
+```yaml
+---
+- name: restart minecraft
+  systemd:
+    name: minecraft
+    state: restarted
+```
+
+Now, let's create a playbook to use this role:
+
+`playbooks/minecraft_server.yml`:
+```yaml
+---
+- hosts: raspberrypi
+  become: yes
+
+  roles:
+    - minecraft_server
+```
+
+Finally, update the `inventory/group_vars/raspberrypi.yml` file with any necessary variables for your Raspberry Pi hosts.
+
+You can now run the playbook:
+
+```bash
+ansible-playbook -i inventory/production playbooks/minecraft_server.yml
+```
+
+This will set up a Minecraft server on your Raspberry Pi hosts. The server will start automatically on system boot, and you can manage it using systemd commands like `sudo systemctl stop minecraft` and `sudo systemctl start minecraft`.
+~~~
+
+</details>
+
+### Model E: Google AI Studio - Gemini 1.5 Pro
+
+<details>
+  <summary>Click to expand Model E's response</summary>
+  
+~~~
+Homelab Project: Monitoring with Prometheus & Grafana
+This project will set up Prometheus and Grafana on an Ubuntu server, allowing you to monitor various system metrics and create insightful dashboards.
+Playbook Structure:
+Based on your existing Ansible directory structure, we'll add a new playbook and role for this project:
+Playbook: playbooks/prometheus_grafana_deploy/deploy.yml
+Role: roles/prometheus_grafana
+Role Structure:
+The prometheus_grafana role will follow the standard Ansible role structure:
+roles/prometheus_grafana/
+├── defaults
+│   └── main.yml
+├── files
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── tasks
+│   └── main.yml
+├── templates
+│   ├── prometheus.yml.j2
+│   └── grafana_datasource.yml.j2
+└── vars
+    └── main.yml
+
+Implementation Steps:
+Define Variables: In roles/prometheus_grafana/vars/main.yml, define variables like Prometheus version, Grafana version, download URLs, installation paths, etc.
+Download & Install Packages: In roles/prometheus_grafana/tasks/main.yml, use the apt module to install required packages like prometheus, prometheus-node-exporter, and grafana.
+
+Configure Prometheus:
+Use the template module to create the Prometheus configuration file (prometheus.yml) from the template prometheus.yml.j2.
+Customize the template to include jobs for scraping metrics from the server itself and any other targets you want to monitor (e.g., other servers, network devices).
+Start and enable the Prometheus service.
+
+Configure Grafana:
+Use the template module to create a Grafana datasource configuration file (grafana_datasource.yml) from the template grafana_datasource.yml.j2.
+Customize the template with the URL and access details for Prometheus.
+Use the grafana_datasource module to add the Prometheus datasource to Grafana.
+Start and enable the Grafana service.
+
+Playbook Content:
+The playbooks/prometheus_grafana_deploy/deploy.yml playbook will be simple:
+---
+- hosts: monitoring_servers
+  become: true
+  roles:
+    - prometheus_grafana
+
+Inventory Configuration:
+Create a group in your inventory file (e.g., monitoring_servers) and add the target server's hostname or IP address to this group.
+
+Running the Playbook:
+ansible-playbook -i inventory/production/hosts playbooks/prometheus_grafana_deploy/deploy.yml
+
+Additional Considerations:
+Security: Configure user authentication and access control for both Prometheus and Grafana.
+Dashboards: Create Grafana dashboards to visualize the collected metrics. You can import pre-built dashboards or create your own.
+Alerting: Set up alerting rules in Prometheus to get notified about potential issues.
+
+Benefits:
+This project provides a solid foundation for monitoring your homelab infrastructure. You'll have real-time insights into system performance, resource usage, and potential problems, allowing you to proactively manage your environment.
+~~~
+
+</details>
+
+### Model F: Llama 3
+
+<details>
+  <summary>Click to expand Model F's response</summary>
+  
+~~~
+I'll help you write an Ansible playbook and accompanying files for a fun homelab project. Let's create a "Home Media 
+Server" project.
+
+**Project Structure:**
+
+Create a new directory called `home_media_server` inside your `playbooks` directory:
+```bash
+mkdir playbooks/home_media_server
+```
+Inside the `home_media_server` directory, create the following files and directories:
+
+* `playbook.yml`: The main playbook file.
+* `roles`: A directory to store reusable Ansible roles.
+        + `media_server`: A role for configuring a media server (e.g., Plex or Kodi).
+        + `storage`: A role for setting up storage devices (e.g., NAS or external hard drives).
+
+**playbook.yml:**
+```yaml
+---
+- name: Home Media Server
+  hosts: all
+  become: yes
+
+  roles:
+    - media_server
+    - storage
+```
+This playbook defines a single play that applies to all hosts in the `all` group. It includes two roles: 
+`media_server` and `storage`.
+
+**roles/media_server/tasks/main.yml:**
+```yaml
+---
+- name: Install media server software
+  apt:
+    name: plexmediaserver
+    state: present
+
+- name: Configure media server settings
+  template:
+    src: templates/plex_config.j2
+    dest: /etc/plex/config.json
+    mode: '0644'
+
+- name: Start media server service
+  service:
+    name: plexmediaserver
+    state: started
+    enabled: yes
+```
+This role installs Plex Media Server, configures it using a template file, and starts the service.
+
+**roles/media_server/templates/plex_config.j2:**
+```jinja2
+{
+  "transcoder": {
+    "ffmpeg": true,
+    "ffprobe": true
+  }
+}
+```
+This template file defines some basic Plex configuration settings.
+
+**roles/storage/tasks/main.yml:**
+```yaml
+---
+- name: Install storage software (e.g., Samba)
+  apt:
+    name: samba
+    state: present
+
+- name: Configure storage shares
+  template:
+    src: templates/smb.conf.j2
+    dest: /etc/samba/smb.conf
+    mode: '0644'
+
+- name: Start storage service (e.g., Samba)
+  service:
+    name: samba
+    state: started
+    enabled: yes
+```
+This role installs Samba, configures it using a template file, and starts the service.
+
+**roles/storage/templates/smb.conf.j2:**
+```jinja2
+[global]
+workgroup = HomeMediaServer
+
+[share]
+path = /mnt/media
+name = MediaShare
+comment = Media Share for Home Media Server
+```
+This template file defines some basic Samba configuration settings.
+
+That's it! This playbook and roles should give you a solid foundation for setting up a home media server with Plex and
+storage devices. Feel free to{"function":"update_slots","level":"INFO","line":1595,"msg":"slot context shift","n_cache_tokens":2048,"n_ctx":2048,"n_discard":1011,"n_keep":24,"n_left":2023,"n_past":2047,"n_system_tokens":0,"slot_id":0,"task_id":0,"tid":"126467037587008","timestamp":1715220167}
+ modify or add more tasks as needed.
+
+Remember to create the `templates` directory inside each role directory (e.g., `media_server/templates/`) to store 
+your template files.
+~~~
+
+</details>
+
+### Model G: Llama 3:70B
+
+<details>
+  <summary>Click to expand Model G's response</summary>
+  
+~~~
+What a delightfully organized Ansible directory structure!
+
+Let's create a new project together. How about we deploy a simple NextCloud instance on an Ubuntu server?
+
+Here's the plan:
+
+1. Create a new playbook and accompanying role for NextCloud deployment.
+2. Define the necessary tasks, handlers, and templates for the deployment.
+3. Configure the playbook to use the existing `ubuntu_server_setup` role as a dependency.
+
+Let's get started!
+
+**Create a new playbook:**
+
+In the `playbooks` directory, create a new folder called `nextcloud_deploy` with a single file `deploy_nextcloud.yml`.
+```yaml
+# playbooks/nextcloud_deploy/deploy_nextcloud.yml
+
+---
+- name: Deploy NextCloud on Ubuntu Server
+  hosts: ubuntu_servers
+  become: true
+
+  roles:
+    - ubuntu_server_setup
+    - nextcloud_deploy
+```
+**Create a new role:**
+
+In the `roles` directory, create a new folder called `nextcloud_deploy` with the following subdirectories and files:
+```bash
+# roles/nextcloud_deploy/
+
+defaults/
+main.yml
+
+files/
+nextcloud.conf
+
+handlers/
+main.yml
+
+meta/
+main.yml
+
+tasks/
+main.yml
+install_nextcloud.yml
+configure_nextcloud.yml
+
+templates/
+nextcloud.conf.j2
+
+vars/
+main.yml
+```
+**Define the tasks and handlers:**
+
+In `roles/nextcloud_deploy/tasks/main.yml`, define the main task list:
+```yaml
+# roles/nextcloud_deploy/tasks/main.yml
+
+---
+- name: Deploy NextCloud on Ubuntu Server
+  tasks:
+    - install_nextcloud
+    - configure_nextcloud
+```
+In `roles/nextcloud_deploy/tasks/install_nextcloud.yml`, define the installation task:
+```yaml
+# roles/nextcloud_deploy/tasks/install_nextcloud.yml
+
+---
+- name: Install NextCloud
+  apt:
+    name: nextcloud
+    state: present
+```
+In `roles/nextcloud_deploy/tasks/configure_nextcloud.yml`, define the configuration task:
+```yaml
+# roles/nextcloud_deploy/tasks/configure_nextcloud.yml
+
+---
+- name: Configure NextCloud
+  template:
+    src: templates/nextcloud.conf.j2
+    dest: /etc/nextcloud/config.php
+    mode: '0644'
+  notify: restart nextcloud
+```
+In `roles/nextcloud_deploy/handlers/main.yml`, define the handler to restart the NextCloud service:
+```yaml
+# roles/nextcloud_deploy/handlers/main.yml
+
+---
+- name: Restart NextCloud Service
+  service:
+    name: nextcloud
+    state: restarted
+```
+** Define the templates and variables:**
+
+In `roles/nextcloud_deploy/templates/nextcloud.conf.j2`, define the template for the NextCloud configuration file:
+```jinja2
+# roles/nextcloud_deploy/templates/nextcloud.conf.j2
+
+<?php
+  $CONFIG = array (
+    'instanceid' => '{{ instance_id }}',
+    'passwordsalt' => '{{ password{"function":"update_slots","level":"INFO","line":1595,"msg":"slot context shift","n_cache_tokens":2048,"n_ctx":2048,"n_discard":1011,"n_keep":24,"n_left":2023,"n_past":2047,"n_system_tokens":0,"slot_id":0,"task_id":0,"tid":"126465594750528","timestamp":1715221308}
+_salt }}',
+    // ...
+  );
+?>
+```
+In `roles/nextcloud_deploy/vars/main.yml`, define the variables for the template:
+```yaml
+# roles/nextcloud_deploy/vars/main.yml
+
+---
+instance_id: "myNextCloudInstance"
+password_salt: "MySuperSecretPasswordSalt"
+```
+That's it! You now have a new playbook and role to deploy a NextCloud instance on an Ubuntu server. Run the playbook 
+using `ansible-playbook -i <inventory_file> playbooks/nextcloud_deploy/deploy_nextcloud.yml` to see the magic happen.
+
+How was that? Would you like to add any other features or modifications to this project?
+~~~
+
+</details>
+
+### Model H: Mistral Large
+
+<details>
+  <summary>Click to expand Model H's response</summary>
+  
+~~~
+Based on your current Ansible directory structure, I suggest a fun homelab project to set up a self-hosted GitLab instance on a dedicated server in your homelab. This will allow you to manage your code and collaborate with others in a private setting. Here's how you can structure your Ansible files for this project:
+
+1. Create a new directory for the GitLab project inside the `playbooks` directory:
+
+```
+mkdir -p playbooks/gitlab_install
+```
+
+2. Create a new playbook file for the GitLab installation inside the newly created directory:
+
+```
+touch playbooks/gitlab_install/install_gitlab.yml
+```
+
+3. Edit the `install_gitlab.yml` file and add the following content:
+
+```yaml
+---
+- name: Install GitLab
+  hosts: gitlab
+  become: true
+  roles:
+    - common
+    - gitlab_install
+```
+
+4. Create a new role directory for the GitLab installation inside the `roles` directory:
+
+```
+mkdir -p roles/gitlab_install/{tasks,templates,vars,defaults,files,handlers,meta}
+```
+
+5. Create a `main.yml` file inside the `tasks` directory of the new role:
+
+```
+touch roles/gitlab_install/tasks/main.yml
+```
+
+6. Edit the `main.yml` file and add the following content:
+
+```yaml
+---
+- name: Include GitLab official repository
+  apt_repository:
+    repo: 'deb https://packages.gitlab.com/gitlab/gitlab-ee/ {{ ansible_lsb.codename }}-ee main'
+    state: present
+    filename: gitlab-ee
+
+- name: Add GitLab package signing key
+  apt_key:
+    url: https://packages.gitlab.com/gpg.key
+    state: present
+
+- name: Install GitLab package
+  apt:
+    name: gitlab-ee
+    state: present
+
+- name: Configure GitLab
+  template:
+    src: gitlab.rb.j2
+    dest: /etc/gitlab/gitlab.rb
+  notify:
+    - Restart GitLab
+
+- name: Run GitLab reconfigure
+  command: gitlab-ctl reconfigure
+  changed_when: false
+
+```
+
+7. Create a `gitlab.rb.j2` file inside the `templates` directory of the new role:
+
+```
+touch roles/gitlab_install/templates/gitlab.rb.j2
+```
+
+8. Edit the `gitlab.rb.j2` file and add the following content (you can customize the configuration as needed):
+
+```ruby
+external_url 'http://gitlab.yourdomain.com'
+gitlab_rails['lfs_enabled'] = true
+gitlab_rails['time_zone'] = 'UTC'
+gitlab_rails['gitlab_shell_ssh_port'] = 22
+nginx['redirect_http_to_https'] = true
+```
+
+9. Create a `main.yml` file inside the `handlers` directory of the new role:
+
+```
+touch roles/gitlab_install/handlers/main.yml
+```
+
+10. Edit the `main.yml` file and add the following content:
+
+```yaml
+---
+- name: Restart GitLab
+  command: gitlab-ctl restart
+  listen: "Restart GitLab"
+```
+
+11. Add the new GitLab server to your inventory file (e.g., `inventory/staging/hosts` or `inventory/production/hosts`):
+
+```
+[gitlab]
+gitlab.yourdomain.com
+```
+
+12. Update your `ansible.cfg` file to include the new role's directory if it's not already present:
+
+```
+[defaults]
+roles_path = ./roles
+```
+
+Now you can run the GitLab installation playbook with the following command:
+
+```
+ansible-playbook playbooks/gitlab_install/install_gitlab.yml -i inventory/staging/hosts
+```
+
+Or for production:
+
+```
+ansible-playbook playbooks/gitlab_install/install_gitlab.yml -i inventory/production/hosts
+```
+
+This will set up a self-hosted GitLab instance on your dedicated server. You can further customize the configuration by modifying the `gitlab.rb.j2` file and adding or modifying variables in the `vars` and `defaults` directories of the new role.
 ~~~
 
 </details>
