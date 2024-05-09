@@ -1465,3 +1465,95 @@ The key takeaways from this challenge are:
 As the capabilities of LLM models continue to evolve, their potential for assisting in various tasks, from creative problem-solving to technical implementations, will likely grow. This challenge serves as an exciting starting point for exploring the use of LLM models in a wide range of domains, and it highlights the need for further research and experimentation to fully realize their potential.
 
 Overall, this challenge has been a fun and insightful experience, demonstrating the impressive capabilities of LLM models and their potential to assist in a variety of tasks. As we continue to explore and refine these models, we can look forward to even more creative and effective solutions in the future.
+
+## One More Thing...
+
+As a final fun experiment, I decided to run the Ansible playbook prompt through the Grok Model.
+
+### Model I: Grok
+
+**Summary:** The Grok Model provided a step-by-step guide to create an Ansible playbook for setting up a simple Nginx web server on a Raspberry Pi.
+
+**Brief Analysis:** The response was clear, concise, and easy to follow. It included all the necessary steps to create the playbook, configure the inventory, and run the playbook to set up the web server. The Grok Model demonstrated a solid understanding of Ansible and provided a practical solution for the given task.
+
+<details>
+  <summary>Click to expand Model I's response</summary>
+  
+~~~
+I have analyzed your current Ansible directory structure and I'm ready to help you with your fun homelab project. Let's create a new project in your Ansible directory to set up a simple web server using Nginx on a Raspberry Pi.
+
+1. Create a new directory for the project in the `playbooks` directory:
+```bash
+mkdir ~/projects/infrastructure/ansible/playbooks/webserver
+```
+
+2. Create a new playbook in the `webserver` directory:
+```bash
+touch ~/projects/infrastructure/ansible/playbooks/webserver/setup_webserver.yml
+```
+
+3. Open the `setup_webserver.yml` file in your favorite text editor and add the following playbook content:
+```yaml
+---
+- hosts: raspberrypi
+  become: yes
+  tasks:
+    - name: Install Nginx
+      apt:
+        name: nginx
+        state: latest
+
+    - name: Enable and start Nginx service
+      service:
+        name: nginx
+        enabled: yes
+        state: started
+
+    - name: Copy index.html
+      copy:
+        src: files/index.html
+        dest: /var/www/html/index.html
+        mode: '0644'
+```
+
+4. Create a new directory for the `files` to store the `index.html` file:
+```bash
+mkdir ~/projects/infrastructure/ansible/playbooks/webserver/files
+```
+
+5. Create the `index.html` file in the `files` directory:
+```bash
+touch ~/projects/infrastructure/ansible/playbooks/webserver/files/index.html
+```
+
+6. Open the `index.html` file in your text editor and add the following content:
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Raspberry Pi Web Server</title>
+</head>
+<body>
+    <h1>Welcome to my Raspberry Pi Web Server!</h1>
+    <p>This is a simple web server set up using Ansible.</p>
+</body>
+</html>
+```
+
+7. Add a new group called `raspberrypi` to your `inventory/production/hosts` file:
+```
+[raspberrypi]
+192.168.1.10
+```
+
+Replace `192.168.1.10` with the IP address of your Raspberry Pi.
+
+8. Now you can run the playbook to set up the Nginx web server on your Raspberry Pi:
+```bash
+ansible-playbook -i inventory/production/hosts playbooks/webserver/setup_webserver.yml
+```
+
+After running the playbook, you should have a simple web server running on your Raspberry Pi, serving the `index.html` file created with Ansible.
+~~~
+
+</details>
